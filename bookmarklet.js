@@ -5,35 +5,11 @@ script.onload = script.onreadystatechange = function(){
 	jQuery.noConflict();
 	jQuery(function(){
 
-		var min_values = [10, 50, 100, 500, 1000, 10000];
+		var min_values = [5, 10, 50, 100, 500, 1000];
 		
 		// function check if passed e.href.domain == href.domain from header
 		var proxyExist = function(e){
 			return jQuery("#chrome-title a").attr("href").split("/")[2] != e.attr("href").split("/")[2];
-		};
-		
-		var expandURL = function(url){
-			var expanded;
-			/*
-			jQuery.ajax({
-				
-				url: "http://json-longurl.appspot.com/?url=" + url,
-				//url: "http://therealurl.appspot.com/?format=json&url=" + url,
-				crossDomain: true,
-				dataType: "json",
-				async: false,
-				success: function(data) {
-					expanded = data.url;
-				}
-			});
-			*/
-			
-			jQuery.getJSON("http://json-longurl.appspot.com/?url=" + url + "&callback=?", function(data){
-				
-					expanded = data.url;
-			});
-			
-			return expanded;
 		};
 		
 		var portals = [
@@ -44,12 +20,23 @@ script.onload = script.onreadystatechange = function(){
 				
 					jQuery("#entries .entry").each(function(d, e){
 					
+							if(jQuery(e).attr("shares")){
+							
+								if(jQuery(e).attr("shares") >= amount){
+									jQuery(".collapsed", e).css("background-color", "#D979C7");
+								}
+								
+								return;
+							}
+					
 							var callback = function(url){
 								jQuery.ajax({
 									url: "https://graph.facebook.com/" + url,
 									crossDomain: true,
 									dataType: "json",
 									success: function(data) {
+										jQuery(e).attr("shares", data.shares);
+										
 										if(("shares" in data) && (data.shares >= amount)){
 											jQuery(".collapsed", e).css("background-color", "#D979C7");
 										}
@@ -69,16 +56,34 @@ script.onload = script.onreadystatechange = function(){
 					);
 				}
 			},
-			/*
 			{
 				label: "TW",
-				url: "",
+				url: "http://urls.api.twitter.com/1/urls/count.json?callback=?&url=",
 				search: function(amount){
-					// TODO
-					console.info("TWITTER TO DO");
+					
+					jQuery("#entries .entry").each(function(d, e){
+					
+							var callback = function(url){
+							
+								jQuery.getJSON("http://urls.api.twitter.com/1/urls/count.json?url=" + url + "&callback=?", function(data){
+									if(("count" in data) && (data.count >= amount)){
+										jQuery(".collapsed", e).css("background-color", "blue");
+									}
+								});
+							}
+							
+							if(proxyExist(jQuery(".entry-original", e))){
+								jQuery.getJSON("http://json-longurl.appspot.com/?url=" + jQuery(".entry-original", e).attr("href") + "&callback=?", function(data){
+									callback(data.url);
+								});
+							}
+							else{
+								callback(jQuery(".entry-original", e).attr("href"))
+							}
+						}
+					);
 				}
 			}
-			*/
 		];
 		
 		// events
