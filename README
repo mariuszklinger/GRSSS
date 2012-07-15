@@ -1,8 +1,0 @@
-**Google Reader Social Sorting Scriptlet**
-Scriptlet allows sorting your RSSes by "social points" - currently, Facebook's Likes and Twitter's Shares.
-
-How to use it:
-1. [Drag that link to your browser to make a regular bookmark](javascript:var jslib = 'https://raw.github.com/rinz/GRSSS/master/bookmarklet.js'; script = document.createElement('script'); script.src = jslib; document.body.appendChild(script); void(0);)
-2. Open Google Reader 
-3. Open some RSS list (one source list or direcotry)
-4. Click dragged link, it will display 2 buttons, which will sort your RSSes!
