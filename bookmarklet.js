@@ -2,11 +2,14 @@ var jslib = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js';
 script = document.createElement('script');
 script.src = jslib;
 script.onload = script.onreadystatechange = function(){
+
 	jQuery.noConflict();
 	jQuery(function(){
 	
+		// number of active ajax request
 		var AJAX_REQUEST = 0;
 		
+		// function return color for given points
 		var getColorForAmount = function(a){
 			var colors = ["#FF0000", "#FF4000", "#FF7700", "#FF9500", "#FFBF00", "#FFFF00"];
 			var amount = [100, 50, 20, 10, 5, 0];
@@ -36,11 +39,13 @@ script.onload = script.onreadystatechange = function(){
 		
 		var portals = [
 			{
-				label: "FB",
+				label: "Facebook",
 				url: "https://graph.facebook.com/",
 				favicon: "https://s-static.ak.facebook.com/rsrc.php/yi/r/q9U99v3_saj.ico",
 				search: function(amount){
 				
+					var _this = this;
+					
 					jQuery("#entries .entry").each(function(d, e){
 						(function(){
 						
@@ -60,9 +65,9 @@ script.onload = script.onreadystatechange = function(){
 									dataType: "json",
 									success: function(data) {
 										jQuery(e).attr("shares", data.shares || 0);
-										jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"https://s-static.ak.facebook.com/rsrc.php/yi/r/q9U99v3_saj.ico\">" + (data.shares || 0) + "] " + jQuery(".entry-title", e).html());
+										jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + _this.favicon + "\">" + (data.shares || 0) + "] " + jQuery(".entry-title", e).html());
 										
-										jQuery(".collapsed", e).css("background-color", getColorForAmount(data.shares));
+										jQuery(".collapsed", e).css("background-color", getColorForAmount(data.shares || 0));
 										
 										AJAX_REQUEST--;
 										if(AJAX_REQUEST == 0){
@@ -85,10 +90,12 @@ script.onload = script.onreadystatechange = function(){
 				}
 			},
 			{
-				label: "TW",
+				label: "Twitter",
 				url: "http://urls.api.twitter.com/1/urls/count.json?callback=?&url=",
 				favicon: "https://twitter.com/favicons/favicon.ico",
 				search: function(amount){
+				
+					var _this = this;
 					
 					jQuery("#entries .entry").each(function(d, e){
 						(function(){
@@ -109,9 +116,9 @@ script.onload = script.onreadystatechange = function(){
 									dataType: "json",
 									success: function(data) {
 										jQuery(e).attr("count", data.count || 0);
-										jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"https://twitter.com/favicons/favicon.ico\">" + (data.count || 0) + "] " + jQuery(".entry-title", e).html());
-									
-										jQuery(".collapsed", e).css("background-color", getColorForAmount(data.count));
+										jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + _this.favicon + "\">" + (data.count || 0) + "] " + jQuery(".entry-title", e).html());
+										
+										jQuery(".collapsed", e).css("background-color", getColorForAmount(data.count || 0));
 										
 										AJAX_REQUEST--;
 										if(AJAX_REQUEST == 0){
