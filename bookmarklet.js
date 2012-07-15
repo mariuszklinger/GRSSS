@@ -11,14 +11,22 @@ script.onload = script.onreadystatechange = function(){
 			var colors = ["#FF0000", "#FF4000", "#FF7700", "#FF9500", "#FFBF00", "#FFFF00"];
 			var amount = [100, 50, 20, 10, 5, 0];
 			
-			for(var am in amount){
-				if(a >= amount[am]){
-					return colors[am];
+			var colors = [
+				{ amount: 100,	color: "#FF0000",},
+				{ amount: 50,	color: "#FF4000",},
+				{ amount: 20,	color: "#FF7700",},
+				{ amount: 10,	color: "#FF9500",},
+				{ amount: 5,	color: "#FFBF00",},
+				{ amount: 0,	color: "#FFFF00",},
+			];
+			
+			for(var c in colors){
+				if(a >= colors[c].amount){
+					return colors[c].color;
 				}
 			}
 			
-			return colors[colors.length];
-		
+			return colors[colors.length].color;
 		};
 		
 		// function check if passed e.href.domain == href.domain from header
