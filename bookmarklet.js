@@ -5,9 +5,6 @@ script.onload = script.onreadystatechange = function(){
 
 	jQuery.noConflict();
 	jQuery(function(){
-	
-		// number of active ajax request
-		var AJAX_REQUEST = 0;
 		
 		// function return color for given points
 		var getColorForAmount = function(a){
@@ -29,7 +26,8 @@ script.onload = script.onreadystatechange = function(){
 			return (jQuery("#chrome-title a").length) ? jQuery("#chrome-title a").attr("href").split("/")[2] != e.attr("href").split("/")[2] : false;
 		};
 		
-		var propagetElement = function(attr){
+		// simple bubble sort
+		var sortRows = function(attr){
 			jQuery("#entries .entry").each(function(d, el){
 				while(parseInt(jQuery(el).prev().attr(attr)) < parseInt(jQuery(el).attr(attr))) {
 				   jQuery(el).prev().before(jQuery(el));
@@ -37,124 +35,87 @@ script.onload = script.onreadystatechange = function(){
 			});
 		};
 		
+		// function sets "pointsAttr" to each row
+		var getPoints = function(portalObj){
+		
+			var apiurl = portalObj.apiurl;
+			var pointsAttr = portalObj.pointsAttr;
+			var favicon = portalObj.favicon;
+			
+			// number of active ajax request
+			var AJAX_REQUEST = 0;
+			
+			jQuery("#entries .entry").each(function(d, e){
+				(function(){
+				
+					if(jQuery(e).attr(pointsAttr)){
+						sortRows(pointsAttr);
+						jQuery(".collapsed", e).css("background-color", getColorForAmount(jQuery(e).attr(pointsAttr)));
+						return;
+					}
+				
+					var callback = function(url){
+						
+						AJAX_REQUEST++;
+						
+						jQuery.ajax({
+							url: apiurl + url,
+							crossDomain: true,
+							dataType: "json",
+							success: function(data) {
+								jQuery(e).attr(pointsAttr, data[pointsAttr] || 0);
+								jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + favicon + "\">" + (data[pointsAttr] || 0) + "] " + jQuery(".entry-title", e).html());
+								
+								jQuery(".collapsed", e).css("background-color", getColorForAmount(data[pointsAttr] || 0));
+								
+								AJAX_REQUEST--;
+								if(AJAX_REQUEST == 0){
+									sortRows(pointsAttr);
+								}
+							}
+						});
+					}
+					
+					if(proxyExist(jQuery(".entry-original", e))){
+						jQuery.getJSON("http://json-longurl.appspot.com/?url=" + jQuery(".entry-original", e).attr("href") + "&callback=?", function(data){
+							callback(data.url);
+						});
+					}
+					else{
+						callback(jQuery(".entry-original", e).attr("href"))
+					}
+				})();
+			});
+		};
+		
 		var portals = [
 			{
-				label: "Facebook",
-				url: "https://graph.facebook.com/",
+				label: "Facebook.com",
+				apiurl: "https://graph.facebook.com/",
 				favicon: "https://s-static.ak.facebook.com/rsrc.php/yi/r/q9U99v3_saj.ico",
-				search: function(amount){
-				
-					var _this = this;
-					
-					jQuery("#entries .entry").each(function(d, e){
-						(function(){
-						
-							if(jQuery(e).attr("shares")){
-								propagetElement("shares");
-								jQuery(".collapsed", e).css("background-color", getColorForAmount(jQuery(e).attr("shares")));
-								return;
-							}
-					
-							var callback = function(url){
-								
-								AJAX_REQUEST++;
-								
-								jQuery.ajax({
-									url: "https://graph.facebook.com/" + url,
-									crossDomain: true,
-									dataType: "json",
-									success: function(data) {
-										jQuery(e).attr("shares", data.shares || 0);
-										jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + _this.favicon + "\">" + (data.shares || 0) + "] " + jQuery(".entry-title", e).html());
-										
-										jQuery(".collapsed", e).css("background-color", getColorForAmount(data.shares || 0));
-										
-										AJAX_REQUEST--;
-										if(AJAX_REQUEST == 0){
-											propagetElement("shares");
-										}
-									}
-								});
-							}
-							
-							if(proxyExist(jQuery(".entry-original", e))){
-								jQuery.getJSON("http://json-longurl.appspot.com/?url=" + jQuery(".entry-original", e).attr("href") + "&callback=?", function(data){
-									callback(data.url);
-								});
-							}
-							else{
-								callback(jQuery(".entry-original", e).attr("href"))
-							}
-						})();
-					});
-				}
+				pointsAttr: "shares",
 			},
 			{
-				label: "Twitter",
-				url: "http://urls.api.twitter.com/1/urls/count.json?callback=?&url=",
+				label: "Twitter.com",
+				apiurl: "http://urls.api.twitter.com/1/urls/count.json?callback=?&url=",
 				favicon: "https://twitter.com/favicons/favicon.ico",
-				search: function(amount){
-				
-					var _this = this;
-					
-					jQuery("#entries .entry").each(function(d, e){
-						(function(){
-						
-							if(jQuery(e).attr("count")){
-								propagetElement("count");
-								jQuery(".collapsed", e).css("background-color", getColorForAmount(jQuery(e).attr("count")));
-								return;
-							}
-						
-							var callback = function(url){
-								
-								AJAX_REQUEST++;
-								
-								jQuery.ajax({
-									url: "http://urls.api.twitter.com/1/urls/count.json?url=" + url + "&callback=?",
-									crossDomain: true,
-									dataType: "json",
-									success: function(data) {
-										jQuery(e).attr("count", data.count || 0);
-										jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + _this.favicon + "\">" + (data.count || 0) + "] " + jQuery(".entry-title", e).html());
-										
-										jQuery(".collapsed", e).css("background-color", getColorForAmount(data.count || 0));
-										
-										AJAX_REQUEST--;
-										if(AJAX_REQUEST == 0){
-											propagetElement("count");
-										}
-									}
-								});
-							}
-							
-							if(proxyExist(jQuery(".entry-original", e))){
-								jQuery.getJSON("http://json-longurl.appspot.com/?url=" + jQuery(".entry-original", e).attr("href") + "&callback=?", function(data){
-									callback(data.url);
-								});
-							}
-							else{
-								callback(jQuery(".entry-original", e).attr("href"))
-							}
-						})();
-					});
-				}
+				pointsAttr: "count",
 			}
 		];
 		
 		
-		var button;
+		var button = null;
+		
+		var getClickCallback = function(p){
+			return function(){
+				getPoints(p);
+			}
+		}
 		
 		for(var p in portals){
-			var button = jQuery("<div class=\"goog-inline-block jfk-button jfk-button-standard viewer-buttons\"><img class=\"jfk-button-img\" src=\"" + portals[p].favicon + "\" /></div>");
-			
-			var getClickCallback = function(a, p){
-				return function(){
-					AJAX_REQUEST = 0;
-					p.search(50, p);
-				}
-			}
-			button.click(getClickCallback(50, portals[p]));
+		
+			button = jQuery("<div class=\"goog-inline-block jfk-button jfk-button-standard viewer-buttons\"><img class=\"jfk-button-img\" src=\"" + portals[p].favicon + "\" /></div>");
+			button.click(getClickCallback(portals[p]));
 			
 			jQuery("#viewer-refresh").before(button);
 		}
