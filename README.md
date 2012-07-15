@@ -1,6 +1,6 @@
-**Google Reader Social Sorting Scriptlet**
+**Google Reader Social Sorting Bookmarklet**
 --
-Scriptlet allows sorting your RSSes by "social points" - currently, Facebook's Likes and Twitter's Shares.
+Bookmarklet allows sorting your RSSes by "social points" - currently, Facebook's Likes and Twitter's Shares.
 
 How to use it:
 
