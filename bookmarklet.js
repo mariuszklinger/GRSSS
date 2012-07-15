@@ -29,8 +29,10 @@ script.onload = script.onreadystatechange = function(){
 		// simple bubble sort
 		var sortRows = function(attr){
 			jQuery("#entries .entry").each(function(d, el){
-				while(parseInt(jQuery(el).prev().attr(attr)) < parseInt(jQuery(el).attr(attr))) {
-				   jQuery(el).prev().before(jQuery(el));
+				var currentElement = jQuery(el);
+				
+				while(parseInt(currentElement.prev().attr(attr)) < parseInt(currentElement.attr(attr))) {
+				   currentElement.prev().before(currentElement);
 				};
 			});
 		};
@@ -48,9 +50,11 @@ script.onload = script.onreadystatechange = function(){
 			jQuery("#entries .entry").each(function(d, e){
 				(function(){
 				
-					if(jQuery(e).attr(pointsAttr)){
+					var points = jQuery(e).attr(pointsAttr) || 0;
+				
+					if(jQuery(e).attr(pointsAttr) !== undefined){
 						sortRows(pointsAttr);
-						jQuery(".collapsed", e).css("background-color", getColorForAmount(jQuery(e).attr(pointsAttr)));
+						jQuery(".collapsed", e).css("background-color", getColorForAmount(points));
 						return;
 					}
 				
@@ -63,10 +67,12 @@ script.onload = script.onreadystatechange = function(){
 							crossDomain: true,
 							dataType: "json",
 							success: function(data) {
-								jQuery(e).attr(pointsAttr, data[pointsAttr] || 0);
-								jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + favicon + "\">" + (data[pointsAttr] || 0) + "] " + jQuery(".entry-title", e).html());
+							
+								var points = data[pointsAttr] || 0;
+								jQuery(e).attr(pointsAttr, points);
 								
-								jQuery(".collapsed", e).css("background-color", getColorForAmount(data[pointsAttr] || 0));
+								jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + favicon + "\">" + points + "] " + jQuery(".entry-title", e).html());
+								jQuery(".collapsed", e).css("background-color", getColorForAmount(points));
 								
 								AJAX_REQUEST--;
 								if(AJAX_REQUEST == 0){
@@ -102,16 +108,15 @@ script.onload = script.onreadystatechange = function(){
 				pointsAttr: "count",
 			}
 		];
-		
-		
-		var button = null;
-		
+	
+		// creating buttons
 		var getClickCallback = function(p){
 			return function(){
 				getPoints(p);
 			}
 		}
 		
+		var button = null;
 		for(var p in portals){
 		
 			button = jQuery("<div class=\"goog-inline-block jfk-button jfk-button-standard viewer-buttons\"><img class=\"jfk-button-img\" src=\"" + portals[p].favicon + "\" /></div>");
