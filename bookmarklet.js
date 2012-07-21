@@ -8,8 +8,6 @@ script.onload = script.onreadystatechange = function(){
 		
 		// function return color for given points
 		var getColorForAmount = function(a){
-			var colors = ["#FF0000", "#FF4000", "#FF7700", "#FF9500", "#FFBF00", "#FFFF00"];
-			var amount = [100, 50, 20, 10, 5, 0];
 			
 			var colors = [
 				{ amount: 100,	color: "#FF0000",},
@@ -45,8 +43,16 @@ script.onload = script.onreadystatechange = function(){
 			});
 		};
 		
+		var showAjaxLoader = function(buttonNode){
+			jQuery("img", buttonNode).attr("src", "http://i.imgur.com/qOFiG.gif");
+		}
+		
+		var showLogo = function(buttonNode, favicon){
+			jQuery("img", buttonNode).attr("src", favicon);
+		}
+		
 		// function sets "pointsAttr" to each row
-		var getPoints = function(portalObj){
+		var getPoints = function(portalObj, buttonNode){
 		
 			var apiurl = portalObj.apiurl;
 			var pointsAttr = portalObj.pointsAttr;
@@ -56,6 +62,9 @@ script.onload = script.onreadystatechange = function(){
 			var AJAX_REQUEST = 0;
 			
 			jQuery("#entries .entry").each(function(d, e){
+			
+				showAjaxLoader(buttonNode);
+				
 				(function(){
 				
 					var points = jQuery(e).attr(pointsAttr) || 0;
@@ -70,24 +79,30 @@ script.onload = script.onreadystatechange = function(){
 						
 						AJAX_REQUEST++;
 						
-						jQuery.ajax({
-							url: apiurl + url,
-							crossDomain: true,
-							dataType: "json",
-							success: function(data) {
-							
-								var points = data[pointsAttr] || 0;
-								jQuery(e).attr(pointsAttr, points);
+						try{
+							jQuery.ajax({
+								url: apiurl + url,
+								crossDomain: true,
+								dataType: "json",
+								success: function(data) {
 								
-								jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + favicon + "\">" + points + "] " + jQuery(".entry-title", e).html());
-								jQuery(".collapsed", e).css("background-color", getColorForAmount(points));
-								
-								AJAX_REQUEST--;
-								if(AJAX_REQUEST == 0){
-									sortRows(pointsAttr);
-								}
-							}
-						});
+									var points = data[pointsAttr] || 0;
+									jQuery(e).attr(pointsAttr, points);
+									
+									jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + favicon + "\">" + points + "] " + jQuery(".entry-title", e).html());
+									jQuery(".collapsed", e).css("background-color", getColorForAmount(points));
+
+									AJAX_REQUEST--;
+									if(AJAX_REQUEST == 0){
+										sortRows(pointsAttr);
+										showLogo(buttonNode, favicon);
+									}
+								},
+							});
+						}catch(e){
+							// twitter sometimes generate error...
+							AJAX_REQUEST--;
+						}
 					}
 					
 					if(proxyExist(jQuery(".entry-original", e))){
@@ -116,19 +131,17 @@ script.onload = script.onreadystatechange = function(){
 				pointsAttr: "count",
 			}
 		];
-	
-		// creating buttons
-		var getClickCallback = function(p){
-			return function(){
-				getPoints(p);
-			}
-		}
 		
 		var button = null;
 		for(var p in portals){
 		
-			button = jQuery("<div class=\"goog-inline-block jfk-button jfk-button-standard viewer-buttons\"><img class=\"jfk-button-img\" src=\"" + portals[p].favicon + "\" /></div>");
-			button.click(getClickCallback(portals[p]));
+			button = jQuery("<div id=\"\" class=\"goog-inline-block jfk-button jfk-button-standard viewer-buttons\"><img class=\"jfk-button-img\" src=\"" + portals[p].favicon + "\" /></div>");
+			button.click((function(p, b){
+			
+					return function(){
+						getPoints(p, b)
+					}
+				})(portals[p], button));
 			
 			jQuery("#viewer-refresh").before(button);
 		}
