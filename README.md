@@ -14,9 +14,9 @@ How to use it:
 *script = document.createElement('script');*
 *script.src = jslib;*
 *document.body.appendChild(script);*
+*void(0);*
 
 
-void(0);
 2. Open Google Reader 
 3. Open some RSS list view (one source list or directory)
 4. Click dragged link, it will display 2 buttons, which will sort your RSSes!
