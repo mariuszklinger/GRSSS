@@ -10,7 +10,7 @@ How to use it:
 
 
 *javascript:*
-*var jslib = 'http://127.0.0.1/bookmarklet.js';*
+*var jslib = 'https://raw.github.com/rinz/GRSSS/master/bookmarklet.js';*
 *script = document.createElement('script');*
 *script.src = jslib;*
 *document.body.appendChild(script);*
