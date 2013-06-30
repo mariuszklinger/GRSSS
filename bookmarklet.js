@@ -29,12 +29,12 @@ script.onload = script.onreadystatechange = function(){
 		
 		// function check if passed e.href.domain == href.domain from header
 		var proxyExist = function(e){
-			return (jQuery("#chrome-title a").length) ? jQuery("#chrome-title a").attr("href").split("/")[2] != e.attr("href").split("/")[2] : false;
+			return (jQuery(".label.label-inverse a").length) ? jQuery(".label.label-inverse a").attr("href").split("/")[2] != e.attr("href").split("/")[2] : false;
 		};
 		
-		// simple bubble sort
+		// simple insert sort
 		var sortRows = function(attr){
-			jQuery("#entries .entry").each(function(d, el){
+			jQuery(".posts > div").each(function(d, el){
 				var currentElement = jQuery(el);
 				
 				while(parseInt(currentElement.prev().attr(attr)) < parseInt(currentElement.attr(attr))) {
@@ -61,7 +61,7 @@ script.onload = script.onreadystatechange = function(){
 			// number of active ajax request
 			var AJAX_REQUEST = 0;
 			
-			jQuery("#entries .entry").each(function(d, e){
+			jQuery(".posts > div").each(function(d, e){
 			
 				showAjaxLoader(buttonNode);
 				
@@ -71,14 +71,14 @@ script.onload = script.onreadystatechange = function(){
 				
 					if(jQuery(e).attr(pointsAttr) !== undefined){
 						sortRows(pointsAttr);
-						jQuery(".collapsed", e).css("background-color", getColorForAmount(points));
+						jQuery("div", e).css("background-color", getColorForAmount(points));
 						return;
 					}
 				
 					var callback = function(url){
 						
 						AJAX_REQUEST++;
-						
+						console.info(url)
 						try{
 							jQuery.ajax({
 								url: apiurl + url,
@@ -89,8 +89,8 @@ script.onload = script.onreadystatechange = function(){
 									var points = data[pointsAttr] || 0;
 									jQuery(e).attr(pointsAttr, points);
 									
-									jQuery(".entry-title", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + favicon + "\">" + points + "] " + jQuery(".entry-title", e).html());
-									jQuery(".collapsed", e).css("background-color", getColorForAmount(points));
+									jQuery("strong", e).html("[" + "<img style=\"margin-bottom: -3px\" src=\"" + favicon + "\">" + points + "] " + jQuery("strong", e).html());
+									jQuery(e).css("background-color", getColorForAmount(points));
 
 									AJAX_REQUEST--;
 									if(AJAX_REQUEST == 0){
@@ -105,13 +105,13 @@ script.onload = script.onreadystatechange = function(){
 						}
 					}
 					
-					if(proxyExist(jQuery(".entry-original", e))){
-						jQuery.getJSON("http://json-longurl.appspot.com/?url=" + jQuery(".entry-original", e).attr("href") + "&callback=?", function(data){
+					if(proxyExist(jQuery("a", e))){
+						jQuery.getJSON("http://json-longurl.appspot.com/?url=" + jQuery("a", e).attr("href") + "&callback=?", function(data){
 							callback(data.url);
 						});
 					}
 					else{
-						callback(jQuery(".entry-original", e).attr("href"))
+						callback(jQuery("a", e).attr("href"));
 					}
 				})();
 			});
@@ -135,7 +135,7 @@ script.onload = script.onreadystatechange = function(){
 		var button = null;
 		for(var p in portals){
 		
-			button = jQuery("<div id=\"\" class=\"goog-inline-block jfk-button jfk-button-standard viewer-buttons\"><img class=\"jfk-button-img\" src=\"" + portals[p].favicon + "\" /></div>");
+			button = jQuery("<div id=\"\" class=\"btn btn-small refresh\" style=\"float: left;\"><img class=\"jfk-button-img\" src=\"" + portals[p].favicon + "\" /></div>");
 			button.click((function(p, b){
 			
 					return function(){
@@ -143,7 +143,7 @@ script.onload = script.onreadystatechange = function(){
 					}
 				})(portals[p], button));
 			
-			jQuery("#viewer-refresh").before(button);
+			jQuery(".pull-left:eq(0)").before(button);
 		}
 		
 	});
